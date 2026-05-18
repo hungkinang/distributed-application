@@ -1,0 +1,119 @@
+package edu.bookingtour.service;
+
+import edu.bookingtour.entity.NguoiDung;
+import edu.bookingtour.repo.NguoiDungRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Transactional
+public class NguoiDungService {
+
+    @Autowired
+    private NguoiDungRepository nguoiDungRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public List<String> findhotenbinhluan() {
+        return nguoiDungRepository.findTatCaHoTen();
+    }
+
+    public Optional<NguoiDung> findById(Integer id) {
+        return nguoiDungRepository.findById(id);
+    }
+
+    public Optional<NguoiDung> findByTenDangNhap(String tenDangNhap) {
+        return nguoiDungRepository.findByTenDangNhap(tenDangNhap);
+    }
+
+    public List<NguoiDung> findAll() {
+        return nguoiDungRepository.findAll();
+    }
+
+    public NguoiDung save(NguoiDung nguoiDung) {
+        return nguoiDungRepository.save(nguoiDung);
+    }
+
+    public NguoiDung update(Integer id, NguoiDung nguoiDung) {
+        NguoiDung user = nguoiDungRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + id));
+        user.setTenDangNhap(nguoiDung.getTenDangNhap());
+        user.setEmail(nguoiDung.getEmail());
+        user.setHoTen(nguoiDung.getHoTen());
+        user.setNumber(nguoiDung.getNumber());
+        user.setVaiTro(nguoiDung.getVaiTro());
+        if (nguoiDung.getMatKhau() != null && !nguoiDung.getMatKhau().isEmpty()) {
+            user.setMatKhau(passwordEncoder.encode(nguoiDung.getMatKhau()));
+        }
+        return nguoiDungRepository.save(user);
+    }
+
+    public void deleteById(Integer id) {
+        if (!nguoiDungRepository.existsById(id)) {
+            throw new RuntimeException("Không tìm thấy người dùng với ID: " + id);
+        }
+        nguoiDungRepository.deleteById(id);
+    }
+
+    public Page<Object[]> findAllUserDetail(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return nguoiDungRepository.findAllUserDetails(pageable);
+    }
+
+    public NguoiDung registerNewUser(NguoiDung nguoiDung) {
+        if (nguoiDungRepository.findByTenDangNhap(nguoiDung.getTenDangNhap()).isPresent()) {
+            throw new RuntimeException("Tên đăng nhập đã tồn tại!");
+        }
+        if (nguoiDungRepository.findByEmail(nguoiDung.getEmail()).isPresent()) {
+            throw new RuntimeException("Email đã được sử dụng!");
+        }
+        nguoiDung.setMatKhau(passwordEncoder.encode(nguoiDung.getMatKhau()));
+        if (nguoiDung.getVaiTro() == null || nguoiDung.getVaiTro().isEmpty()) {
+            nguoiDung.setVaiTro("USER");
+        }
+        return nguoiDungRepository.save(nguoiDung);
+    }
+
+    /**
+     * Thay đổi mật khẩu
+     */
+    public void changePassword(Integer userId, String oldPassword, String newPassword) {
+        NguoiDung user = nguoiDungRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(oldPassword, user.getMatKhau())) {
+            throw new RuntimeException("Mật khẩu cũ không đúng!");
+        }
+
+        // Cập nhật mật khẩu mới
+        user.setMatKhau(passwordEncoder.encode(newPassword));
+        nguoiDungRepository.save(user);
+    }
+
+    public boolean isUsernameExists(String username) {
+        return nguoiDungRepository.findByTenDangNhap(username).isPresent();
+    }
+
+    public boolean isEmailExists(String email) {
+        return nguoiDungRepository.findByEmail(email).isPresent();
+    }
+
+    /**
+     * Cập nhật đường dẫn ảnh đại diện
+     */
+    public void updateAvatar(Integer userId, String avatarPath) {
+        NguoiDung user = nguoiDungRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+        user.setAnhDaiDien(avatarPath);
+        nguoiDungRepository.save(user);
+    }
+}
