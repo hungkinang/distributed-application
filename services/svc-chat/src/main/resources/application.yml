@@ -1,0 +1,30 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: svc-chat
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/chat_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+booking:
+  api-base-path: /api/chat
+tour-service:
+  base-url: ${TOUR_SERVICE_BASE_URL:http://localhost:8080}
+gemini:
+  api:
+    url: ${GEMINI_API_URL:https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent}
+  key: ${GEMINI_API_KEY:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

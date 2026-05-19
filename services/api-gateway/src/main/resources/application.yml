@@ -1,0 +1,63 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: svc-auth
+          uri: http://svc-auth:8080
+          predicates:
+            - Path=/api/auth/**
+        - id: svc-user
+          uri: http://svc-user:8080
+          predicates:
+            - Path=/api/users/**
+        - id: svc-tour
+          uri: http://svc-tour:8080
+          predicates:
+            - Path=/api/tours/**
+        - id: svc-booking
+          uri: http://svc-booking:8080
+          predicates:
+            - Path=/api/bookings/**
+        - id: svc-payment
+          uri: http://svc-payment:8080
+          predicates:
+            - Path=/api/payments/**
+        - id: svc-contact
+          uri: http://svc-contact:8080
+          predicates:
+            - Path=/api/contact/**
+        - id: svc-review
+          uri: http://svc-review:8080
+          predicates:
+            - Path=/api/reviews/**
+        - id: svc-favorite
+          uri: http://svc-favorite:8080
+          predicates:
+            - Path=/api/favorites/**
+        - id: svc-flight
+          uri: http://svc-flight:8080
+          predicates:
+            - Path=/api/flights/**
+        - id: svc-news
+          uri: http://svc-news:8080
+          predicates:
+            - Path=/api/news/**
+        - id: svc-chat
+          uri: http://svc-chat:8080
+          predicates:
+            - Path=/api/chat/**
+        - id: svc-admin
+          uri: http://svc-admin:8080
+          predicates:
+            - Path=/api/admin/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

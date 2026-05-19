@@ -1,0 +1,41 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: svc-payment
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/payment_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+booking:
+  api-base-path: /api/payments
+
+jwt:
+  secret: ${JWT_SECRET:dev-jwt-change-in-prod-bookingtour-xx}
+
+booking-service:
+  base-url: ${BOOKING_SERVICE_BASE_URL:http://localhost:8080}
+
+internal:
+  service-token: ${INTERNAL_SERVICE_TOKEN:}
+
+vnp:
+  pay-url: ${VNP_PAY_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+  return-url: ${VNP_RETURN_URL:http://localhost:8080/api/payments/vnpay/callback}
+  tmn-code: ${VNP_TMN_CODE:}
+  hash-secret: ${VNP_HASH_SECRET:}
+  api-url: ${VNP_API_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

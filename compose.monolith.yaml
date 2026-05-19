@@ -1,0 +1,19 @@
+# Monolith UI + MySQL (migration song song với microservices)
+# Chạy: docker compose -f compose.yaml -f compose.monolith.yaml up --build bt-monolith
+
+services:
+  bt-monolith:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.monolith
+    container_name: bt-monolith
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bookingtour?createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true&connectionCollation=utf8mb4_unicode_ci&nullCatalogMeansCurrent=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Ho_Chi_Minh
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      mysql:
+        condition: service_healthy

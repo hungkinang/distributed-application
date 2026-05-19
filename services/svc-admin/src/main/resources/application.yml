@@ -1,0 +1,32 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: svc-admin
+
+booking:
+  api-base-path: /api/admin
+
+jwt:
+  secret: ${JWT_SECRET:dev-jwt-change-in-prod-bookingtour-xx}
+
+# Base URL các service trong Docker Compose (ghi đè bằng biến môi trường nếu cần).
+admin:
+  backends:
+    auth: ${ADMIN_BACKEND_AUTH:http://svc-auth:8080}
+    user: ${ADMIN_BACKEND_USER:http://svc-user:8080}
+    tour: ${ADMIN_BACKEND_TOUR:http://svc-tour:8080}
+    booking: ${ADMIN_BACKEND_BOOKING:http://svc-booking:8080}
+    payment: ${ADMIN_BACKEND_PAYMENT:http://svc-payment:8080}
+    contact: ${ADMIN_BACKEND_CONTACT:http://svc-contact:8080}
+    review: ${ADMIN_BACKEND_REVIEW:http://svc-review:8080}
+    favorite: ${ADMIN_BACKEND_FAVORITE:http://svc-favorite:8080}
+    flight: ${ADMIN_BACKEND_FLIGHT:http://svc-flight:8080}
+    news: ${ADMIN_BACKEND_NEWS:http://svc-news:8080}
+    chat: ${ADMIN_BACKEND_CHAT:http://svc-chat:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -76,7 +76,30 @@ src/main/java/edu/bookingtour/
    ```bash
    mvn spring-boot:run
    ```
-4. Truy cập vào trình duyệt: `http://localhost:8080`
+4. Truy cập vào trình duyệt: `http://localhost:8080` (monolith trong module `bookingtour-app`; chạy: `./mvnw -pl bookingtour-app spring-boot:run`).
+
+---
+
+## Đa module, Docker & JWT (migration đang làm)
+
+Repo dùng **Maven reactor** (`bookingtour-parent`): monolith **`bookingtour-app`**, microservice trong **`services/`**, gateway **`services/api-gateway`**.
+
+```bash
+docker compose up --build
+```
+
+**Gateway:** `http://localhost:8080`
+
+| Endpoint | Mô tả |
+|---------|------|
+| `POST /api/auth/register` | `tenDangNhap`, `email`, `matKhau`, `hoTen`; tuỳ chọn `confirmPassword` |
+| `POST /api/auth/login` | `username` / `tenDangNhap` + `password` → `accessToken` (Bearer HS256) |
+| `POST /api/bookings/reservations` | Header `Authorization: Bearer …`; JSON `chuyenDiId`, `soLuong`, `hoTen`, `email`, `soDienThoai`, `tongGia`, … |
+| `GET /api/bookings/reservations/me` | Danh sách đặt của user trong JWT |
+
+**Flyway:** `auth_db`, `booking_db`. `JWT_SECRET` (anchor `x-jwt-shared` trong `compose.yaml`) phải **giống** giữa `svc-auth` và `svc-booking`.
+
+Monolith Thymeleaf vẫn dùng **session**; DB `auth_db`/`booking_db` **tách** khỏi DB legacy của monolith — cần migrate dữ liệu hoặc đăng ký user mới trên stack microservice.
 
 ## 📞 Liên Hệ
 

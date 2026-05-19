@@ -1,0 +1,31 @@
+# Build: docker build -f docker/Dockerfile.service --build-arg MODULE_PATH=services/svc-auth -t bookingtour/svc-auth .
+FROM eclipse-temurin:17-jdk AS build
+
+ARG MODULE_PATH=services/svc-auth
+
+WORKDIR /w
+COPY pom.xml mvnw ./
+COPY .mvn .mvn
+COPY bookingtour-ms-common/pom.xml bookingtour-ms-common/
+COPY bookingtour-ms-common/src bookingtour-ms-common/src
+COPY bookingtour-app/pom.xml bookingtour-app/
+COPY bookingtour-app/src bookingtour-app/src
+COPY services services
+
+RUN chmod +x mvnw \
+    && ./mvnw -q -pl ${MODULE_PATH} -am package -DskipTests \
+    && cp "${MODULE_PATH}"/target/*.jar /tmp/app.jar
+
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+RUN groupadd --system spring && useradd --system --gid spring spring
+
+USER spring:spring
+
+COPY --from=build /tmp/app.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,38 @@
+# Ảnh monolith (Thymeleaf + JPA)
+FROM eclipse-temurin:17-jdk AS build
+
+WORKDIR /w
+COPY pom.xml mvnw ./
+COPY .mvn .mvn
+COPY bookingtour-app bookingtour-app
+COPY services/api-gateway/pom.xml services/api-gateway/
+COPY services/svc-auth/pom.xml services/svc-auth/
+COPY services/svc-user/pom.xml services/svc-user/
+COPY services/svc-tour/pom.xml services/svc-tour/
+COPY services/svc-booking/pom.xml services/svc-booking/
+COPY services/svc-payment/pom.xml services/svc-payment/
+COPY services/svc-contact/pom.xml services/svc-contact/
+COPY services/svc-review/pom.xml services/svc-review/
+COPY services/svc-favorite/pom.xml services/svc-favorite/
+COPY services/svc-flight/pom.xml services/svc-flight/
+COPY services/svc-news/pom.xml services/svc-news/
+COPY services/svc-chat/pom.xml services/svc-chat/
+COPY services/svc-admin/pom.xml services/svc-admin/
+
+RUN chmod +x mvnw \
+    && ./mvnw -q -pl bookingtour-app -am package -DskipTests \
+    && cp bookingtour-app/target/*.jar /tmp/app.jar
+
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+RUN groupadd --system spring && useradd --system --gid spring spring
+
+USER spring:spring
+
+COPY --from=build /tmp/app.jar app.jar
+
+EXPOSE 8090
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,25 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: svc-user
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/user_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+booking:
+  api-base-path: /api/users
+jwt:
+  secret: ${JWT_SECRET:dev-jwt-change-in-prod-bookingtour-xx}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

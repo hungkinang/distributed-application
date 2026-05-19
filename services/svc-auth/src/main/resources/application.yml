@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: svc-auth
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/auth_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  flyway:
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+booking:
+  api-base-path: /api/auth
+
+jwt:
+  secret: ${JWT_SECRET:dev-jwt-change-in-prod-bookingtour-xx}
+  access-token-ttl-minutes: ${JWT_ACCESS_TTL_MINUTES:120}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
