@@ -12,16 +12,32 @@
 
     <artifactId>api-gateway</artifactId>
     <name>api-gateway</name>
-    <description>Spring Cloud Gateway — định tuyến tới các microservice</description>
+    <description>Spring Cloud Gateway — JWT, Eureka, Resilience4j</description>
 
     <dependencies>
+        <dependency>
+            <groupId>edu.bookingtour</groupId>
+            <artifactId>bookingtour-ms-common</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
         </dependency>
     </dependencies>
 

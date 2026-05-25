@@ -1,3 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
 -- MySQL dump 10.13  Distrib 8.0.43, for macos15 (arm64)
 --
 -- Host: 127.0.0.1    Database: booking_tour

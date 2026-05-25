@@ -29,7 +29,7 @@ public class NguoiDung {
     @Column(name = "vai_tro")
     private String vaiTro;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
+    @ColumnDefault("CURRENT_TIMESTAMP(6)")
     @Column(name = "ngay_tao")
     private Instant ngayTao;
 

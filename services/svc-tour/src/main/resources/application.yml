@@ -4,6 +4,16 @@ server:
 spring:
   application:
     name: svc-tour
+
+internal:
+  service-token: ${INTERNAL_SERVICE_TOKEN:}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/tour_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh}
     username: ${SPRING_DATASOURCE_USERNAME:root}

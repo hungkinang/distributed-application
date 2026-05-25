@@ -25,4 +25,9 @@ public class QuanLyCho {
 
     @Column(name = "con_lai")
     private Integer conLai;
+
+    /** Optimistic lock — tránh race khi nhiều booking cùng tour. */
+    @Version
+    @Column(name = "version")
+    private Long version;
 }

@@ -5,6 +5,7 @@ WORKDIR /w
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 COPY bookingtour-app bookingtour-app
+COPY bookingtour-ms-common bookingtour-ms-common
 COPY services/api-gateway/pom.xml services/api-gateway/
 COPY services/svc-auth/pom.xml services/svc-auth/
 COPY services/svc-user/pom.xml services/svc-user/

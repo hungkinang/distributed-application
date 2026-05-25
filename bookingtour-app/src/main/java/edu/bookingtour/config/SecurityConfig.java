@@ -48,8 +48,6 @@ public class SecurityConfig {
                         throws Exception {
                 http
                                 .authenticationProvider(authenticationProvider())
-                                .csrf(csrf -> csrf
-                                                .ignoringRequestMatchers("/api/chat"))
                                 .authorizeHttpRequests(authorize -> authorize
                                                 // Public endpoints
                                                 .requestMatchers(
@@ -63,7 +61,6 @@ public class SecurityConfig {
                                                                 "/",
                                                                 "/tour/**",
                                                                 "/api/public/**",
-                                                                "/api/chat",
                                                                 "/tintuc",
                                                                 "/tin-tuc",
                                                                 "/contact",
@@ -73,10 +70,7 @@ public class SecurityConfig {
                                                                 "/favicon.icon")
                                                 .permitAll()
 
-                                                // Admin only endpoints
-                                                .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                                                // User and Admin endpoints
+                                                // User endpoints
                                                 .requestMatchers("/user/**", "/booking/**").authenticated()
 
                                                 // All other requests must be authenticated

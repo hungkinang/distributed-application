@@ -1,0 +1,16 @@
+resilience4j:
+  circuitbreaker:
+    instances:
+      tourInventory:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 20s
+  retry:
+    instances:
+      tourInventory:
+        max-attempts: 3
+        wait-duration: 300ms
+  timelimiter:
+    instances:
+      tourInventory:
+        timeout-duration: 5s

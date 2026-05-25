@@ -31,7 +31,7 @@ public class DanhGia {
     @Column(name = "binh_luan")
     private String binhLuan;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
+    @ColumnDefault("CURRENT_TIMESTAMP(6)")
     @Column(name = "ngay_danh_gia")
     private Instant ngayDanhGia;
 

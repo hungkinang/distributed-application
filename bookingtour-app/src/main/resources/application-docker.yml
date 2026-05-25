@@ -14,5 +14,10 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: false
 
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:db/bookingtour.sql
+
 server:
   port: ${SERVER_PORT:8090}

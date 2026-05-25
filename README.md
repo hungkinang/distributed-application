@@ -1,109 +1,183 @@
-# 🌍 BookingTour - Hệ Thống Đặt Tour Du Lịch Trực Tuyến
+# BookingTour — Distributed Microservices
 
-**BookingTour** là một ứng dụng web hiện đại được xây dựng trên nền tảng Spring Boot, giúp người dùng dễ dàng tìm kiếm, khám phá và đặt các tour du lịch hấp dẫn. Hệ thống cung cấp trải nghiệm mượt mà từ khâu chọn điểm đến đến khâu thanh toán trực tuyến.
+Hệ thống đặt tour du lịch: **Java 17**, **Spring Boot 3.x**, **Maven**, kiến trúc microservices production-oriented.
 
----
-
-## ✨ Tính Năng Chính
-
-### 🛡️ Người Dùng (User)
-*   **Tìm Kiếm & Lọc Tour:** Tìm kiếm tours theo điểm đến, ngày khởi hành, giá cả và phương tiện.
-*   **Xem Chi Tiết Tour:** Thông tin chi tiết về lịch trình, điểm đón, nơi lưu trú và đánh giá từ khách hàng khác.
-*   **Đặt Chỗ (Booking):** Quy trình đặt tour nhanh chóng, quản lý số lượng chỗ còn trống.
-*   **Thanh Toán Trực Tuyến:** Tích hợp cổng thanh toán **VNPay** an toàn và tiện lợi.
-*   **Quản Lý Tài Khoản:** Đăng nhập (hỗ trợ **OAuth2 Google**), xem lịch sử đặt tour, quản lý tour yêu thích.
-*   **Đánh Giá & Phản Hồi:** Gửi nhận xét và chấm điểm cho các tour đã tham gia.
-
-### ⚙️ Quản Trị Viên (Admin)
-*   **Quản Lý Tour:** Thêm, sửa, xóa các tour du lịch, quản lý ngày khởi hành và lịch trình.
-*   **Quản Lý Đơn Hàng:** Theo dõi danh sách đặt chỗ, xác nhận thanh toán và trạng thái tour.
-*   **Thống Kê & Báo Cáo:** Theo dõi doanh thu và lượt đặt tour qua biểu đồ trực quan.
-*   **Quản Lý Người Dùng & Liên Hệ:** Tiếp nhận thông tin liên hệ và quản lý danh sách khách hàng.
+**Phạm vi hiện tại:** chỉ chức năng **User** (đã gỡ **Admin panel** và **Chatbot AI**).
 
 ---
 
-## 🛠️ Công Nghệ Sử Dụng
-
-*   **Backend:** Java 17, Spring Boot 3.x
-*   **Security:** Spring Security (Form Login & OAuth2 Google)
-*   **Database:** MySQL, Spring Data JPA
-*   **Frontend:** Thymeleaf, HTML5, CSS3, JavaScript
-*   **Payment:** VNPay API Integration
-*   **API:** Amadeus API (dành cho các dịch vụ liên quan đến chuyến bay/du lịch)
-*   **Công cụ khác:** Lombok, Maven, Git
-
----
-
-## 📂 Cấu Trúc Project
+## Cấu trúc thư mục
 
 ```text
-src/main/java/edu/bookingtour/
-├── client/         # Client gọi API bên thứ 3 (Amadeus, VNPay)
-├── config/         # Cấu hình hệ thống (Security, VNPay, MVC)
-├── controller/     # Xử lý Request từ người dùng (Admin & User)
-├── dto/            # Data Transfer Objects
-├── entity/         # Các thực thể database (JPA)
-├── repo/           # Interface tương tác với database
-└── service/        # Xử lý logic nghiệp vụ
+distributed-application/
+├── bookingtour-ms-common/     # JWT, ApiResponse, hợp đồng RabbitMQ
+├── bookingtour-app/          # Monolith Thymeleaf (UI user)
+├── services/
+│   ├── eureka-server/        # Service registry
+│   ├── api-gateway/          # Gateway + JWT + Resilience4j
+│   ├── svc-auth/             # Authentication
+│   ├── svc-user/
+│   ├── svc-tour/             # Optimistic lock chỗ ngồi
+│   ├── svc-booking/          # REST + RabbitMQ producer
+│   ├── svc-payment/
+│   ├── svc-email/            # RabbitMQ consumer, @Async, Quartz
+│   ├── svc-notification/
+│   └── svc-{contact,review,favorite,flight,news}/  # User APIs bổ sung
+├── docker/
+│   ├── Dockerfile.service
+│   ├── mysql/init-databases.sql
+│   └── backup/backup-databases.sh
+├── docker-compose.yml
+└── docs/ARCHITECTURE.md
 ```
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt
+## Công nghệ bắt buộc
 
-### 1. Yêu Cầu Hệ Thống
-*   Java JDK 17+
-*   MySQL Server 8.0+
-*   Maven 3.x
+| Nhóm | Công nghệ | Vị trí triển khai |
+|------|-----------|-------------------|
+| Đa luồng | Thread pool, `@Async`, Quartz | `svc-email` |
+| Messaging | REST + RabbitMQ | `svc-booking` → `svc-email`, `svc-notification` |
+| Định danh | UUID, JWT, Eureka, DNS Docker | Gateway, entities, `docker-compose.yml` |
+| Đồng bộ | RabbitMQ + `@Version` | Tour seats, booking events |
+| Sao lưu | mysqldump + cron + volume | `db-backup` service |
+| Chịu lỗi | Resilience4j, Actuator, `restart: unless-stopped` | Gateway, `TourInventoryClient` |
 
-### 2. Cài Đặt Database
-1. Tạo một database mới trong MySQL:
-   ```sql
-   CREATE DATABASE booking_tour CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
-2. Cấu hình thông tin kết nối trong file `src/main/resources/application.properties` (hoặc file `.env` nếu có).
-
-### 3. Chạy Ứng Dụng
-1. Clone dự án về máy:
-   ```bash
-   git clone https://github.com/DucZaki/Booking-Tour.git
-   ```
-2. Di chuyển vào thư mục dự án:
-   ```bash
-   cd Booking-Tour
-   ```
-3. Chạy ứng dụng bằng Maven:
-   ```bash
-   mvn spring-boot:run
-   ```
-4. Truy cập vào trình duyệt: `http://localhost:8080` (monolith trong module `bookingtour-app`; chạy: `./mvnw -pl bookingtour-app spring-boot:run`).
+Chi tiết kiến trúc: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ---
 
-## Đa module, Docker & JWT (migration đang làm)
+## Chạy bằng Docker
 
-Repo dùng **Maven reactor** (`bookingtour-parent`): monolith **`bookingtour-app`**, microservice trong **`services/`**, gateway **`services/api-gateway`**.
+### Yêu cầu
+
+- Docker Desktop / Engine 24+
+- Docker Compose v2
+
+### Lệnh
 
 ```bash
-docker compose up --build
+docker compose -f docker-compose.yml up --build -d
 ```
 
-**Gateway:** `http://localhost:8080`
+### Endpoint
 
-| Endpoint | Mô tả |
-|---------|------|
-| `POST /api/auth/register` | `tenDangNhap`, `email`, `matKhau`, `hoTen`; tuỳ chọn `confirmPassword` |
-| `POST /api/auth/login` | `username` / `tenDangNhap` + `password` → `accessToken` (Bearer HS256) |
-| `POST /api/bookings/reservations` | Header `Authorization: Bearer …`; JSON `chuyenDiId`, `soLuong`, `hoTen`, `email`, `soDienThoai`, `tongGia`, … |
-| `GET /api/bookings/reservations/me` | Danh sách đặt của user trong JWT |
+| Dịch vụ | URL |
+|---------|-----|
+| API Gateway | http://localhost:8088 |
+| Eureka | http://localhost:8761 |
+| RabbitMQ Management | http://localhost:15672 (guest/guest) |
+| MySQL | localhost:3307 (root/root) |
 
-**Flyway:** `auth_db`, `booking_db`. `JWT_SECRET` (anchor `x-jwt-shared` trong `compose.yaml`) phải **giống** giữa `svc-auth` và `svc-booking`.
+### Health
 
-Monolith Thymeleaf vẫn dùng **session**; DB `auth_db`/`booking_db` **tách** khỏi DB legacy của monolith — cần migrate dữ liệu hoặc đăng ký user mới trên stack microservice.
-
-## 📞 Liên Hệ
-
-Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với các thành viên nhóm hoặc qua github dự án.
+```bash
+curl http://localhost:8088/actuator/health
+curl http://localhost:8761/actuator/health
+```
 
 ---
-*Cảm ơn bạn đã quan tâm đến dự án của chúng tôi!* 😊
+
+## API mẫu (qua Gateway)
+
+### Đăng ký / đăng nhập
+
+```bash
+curl -X POST http://localhost:8088/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"tenDangNhap":"user1","email":"u1@test.com","matKhau":"secret123","hoTen":"User One"}'
+
+curl -X POST http://localhost:8088/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user1","password":"secret123"}'
+```
+
+### Đặt tour (JWT bắt buộc)
+
+```bash
+export TOKEN="<accessToken từ login>"
+
+curl -X POST http://localhost:8088/api/bookings/reservations \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "chuyenDiId": 1,
+    "soLuong": 2,
+    "hoTen": "Nguyen Van A",
+    "email": "a@test.com",
+    "soDienThoai": "0900000000",
+    "tongGia": 5000000
+  }'
+```
+
+Sau khi đặt thành công, kiểm tra log:
+
+- `svc-booking`: publish `booking.created`
+- `svc-email`: `[email-mock]` hoặc gửi SMTP thật
+- `svc-notification`: bản ghi trong `notification_db`
+
+---
+
+## Monolith UI (tùy chọn)
+
+```bash
+./mvnw -pl bookingtour-app spring-boot:run
+# hoặc
+docker compose -f compose.monolith.yaml up --build
+```
+
+Monolith dùng **session**; stack microservice dùng **JWT** — DB tách biệt.
+
+---
+
+## Backup & restore MySQL
+
+**Backup tự động:** container `db-backup` chạy script mỗi 24h, lưu vào volume `mysql_backup`.
+
+**Backup thủ công:**
+
+```bash
+docker compose exec db-backup /scripts/backup-databases.sh
+```
+
+**Restore:**
+
+```bash
+gunzip -c ./backups/bookingtour_all_YYYYMMDD_HHMMSS.sql.gz \
+  | docker compose exec -T mysql mysql -uroot -proot
+```
+
+---
+
+## Build Maven (local)
+
+```bash
+./mvnw clean package -DskipTests
+./mvnw -pl services/svc-booking -am spring-boot:run
+```
+
+Biến môi trường quan trọng: `JWT_SECRET`, `INTERNAL_SERVICE_TOKEN`, `EUREKA_URL`, `RABBITMQ_HOST`.
+
+---
+
+## Best practices đã áp dụng
+
+- **Clean architecture:** API → Application Service → Domain → Repository
+- **DTO + validation** trên REST controllers
+- **ApiResponse** chuẩn hóa JSON
+- **Global exception handler** (mẫu trên `svc-email`)
+- **Database per service** + Flyway migrations
+- **Không hardcode host** — dùng tên service Docker + Eureka `lb://`
+- **Secrets qua env** — không commit production secrets
+
+---
+
+## Đã gỡ (theo yêu cầu)
+
+- Toàn bộ **Admin** (monolith `/admin/**`, `svc-admin`)
+- **Chatbot** (UI, `/api/chat`, `svc-chat`, Gemini)
+
+---
+
+*BookingTour — Distributed Systems Demo*

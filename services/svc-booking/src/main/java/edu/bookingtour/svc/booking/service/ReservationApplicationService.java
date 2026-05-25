@@ -3,8 +3,9 @@ package edu.bookingtour.svc.booking.service;
 import edu.bookingtour.svc.booking.api.dto.CreateReservationRequest;
 import edu.bookingtour.svc.booking.api.dto.ReservationResponse;
 import edu.bookingtour.svc.booking.domain.Reservation;
-import edu.bookingtour.svc.booking.event.ReservationCreatedEvent;
+import edu.bookingtour.svc.booking.integration.TourInventoryClient;
 import edu.bookingtour.svc.booking.repo.ReservationRepository;
+import edu.bookingtour.svc.booking.event.ReservationCreatedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,23 +16,30 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ReservationApplicationService {
 
     private final ReservationRepository reservationRepository;
     private final ApplicationEventPublisher events;
+    private final TourInventoryClient tourInventoryClient;
 
     public ReservationApplicationService(
             ReservationRepository reservationRepository,
-            ApplicationEventPublisher events) {
+            ApplicationEventPublisher events,
+            TourInventoryClient tourInventoryClient) {
         this.reservationRepository = reservationRepository;
         this.events = events;
+        this.tourInventoryClient = tourInventoryClient;
     }
 
     @Transactional
     public ReservationResponse create(CreateReservationRequest req, int userId) {
+        tourInventoryClient.reserveSeats(req.chuyenDiId(), req.soLuong());
+
         Reservation entity = new Reservation();
+        entity.setBookingUuid(UUID.randomUUID());
         entity.setUserId(userId);
         entity.setChuyenDiId(req.chuyenDiId());
         entity.setSoLuong(req.soLuong());
@@ -48,8 +56,16 @@ public class ReservationApplicationService {
 
         Reservation saved = reservationRepository.save(entity);
 
-        events.publishEvent(
-                new ReservationCreatedEvent(saved.getId(), userId, req.chuyenDiId(), req.tongGia(), Instant.now()));
+        events.publishEvent(new ReservationCreatedEvent(
+                saved.getBookingUuid(),
+                saved.getId(),
+                userId,
+                req.chuyenDiId(),
+                req.email(),
+                req.hoTen(),
+                req.soLuong(),
+                req.tongGia(),
+                Instant.now()));
 
         return map(saved);
     }

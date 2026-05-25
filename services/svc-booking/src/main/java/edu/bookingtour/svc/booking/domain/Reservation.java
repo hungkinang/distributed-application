@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,6 +23,9 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
+
+    @Column(name = "booking_uuid", columnDefinition = "BINARY(16)", nullable = false, unique = true)
+    private UUID bookingUuid;
 
     @Column(name = "id_nguoi_dung")
     private Integer userId;

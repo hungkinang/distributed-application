@@ -25,7 +25,7 @@ public class YeuThich {
     @JoinColumn(name = "id_chuyen_di")
     private ChuyenDi idChuyenDi;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
+    @ColumnDefault("CURRENT_TIMESTAMP(6)")
     @Column(name = "ngay_them")
     private Instant ngayThem;
     @PrePersist

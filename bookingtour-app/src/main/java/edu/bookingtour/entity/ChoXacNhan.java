@@ -25,7 +25,7 @@ public class ChoXacNhan {
     @Column(name = "trang_thai")
     private String trangThai;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
+    @ColumnDefault("CURRENT_TIMESTAMP(6)")
     @Column(name = "ngay_cap_nhat")
     private Instant ngayCapNhat;
 
